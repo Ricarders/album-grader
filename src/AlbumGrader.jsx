@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useRef } from 'react';
+import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { 
   Plus, Trash2, Disc, Music, Trophy, Calculator, 
   Check, ChevronLeft, Download, Upload, Save, Edit3, 
@@ -29,7 +29,7 @@ const calculateStats = (songs) => {
   const sortedByRating = [...ratedSongs].sort((a, b) => a.rating - b.rating);
   
   // Identify drops
-  const songsToDrop = sortedByRating.slice(0, s);
+  const songsToDrop = sortedByRating.slice(s);
   const droppedIds = new Set(songsToDrop.map(song => song.id));
 
   // Calculate Adjusted Grade
@@ -899,6 +899,23 @@ const AlbumApp = () => {
   const [pendingImport, setPendingImport] = useState(null);
   const [pendingDeleteId, setPendingDeleteId] = useState(null);
   const fileInputRef = useRef(null);
+
+  // --- NEW: Sync Tab Title and Icon ---
+  useEffect(() => {
+    // 1. Set Tab Title
+    document.title = "AlbumGrader";
+
+    // 2. Set Tab Icon (Dynamic SVG Favicon)
+    const setFavicon = () => {
+      const link = document.querySelector("link[rel*='icon']") || document.createElement('link');
+      link.type = 'image/svg+xml';
+      link.rel = 'icon';
+      // SVG: Rounded square with gradient and a 'disc' circle in the middle
+      link.href = `data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><defs><linearGradient id=%22g%22 x1=%220%25%22 y1=%220%25%22 x2=%22100%25%22 y2=%22100%25%22><stop offset=%220%25%22 style=%22stop-color:%23dc2626;stop-opacity:1%22 /><stop offset=%22100%25%22 style=%22stop-color:%23f97316;stop-opacity:1%22 /></linearGradient></defs><rect width=%22100%22 height=%22100%22 rx=%2220%22 fill=%22url(%23g)%22 /><circle cx=%2250%22 cy=%2250%22 r=%2230%22 stroke=%22white%22 stroke-width=%228%22 fill=%22none%22 /><circle cx=%2250%22 cy=%2250%22 r=%228%22 fill=%22white%22 /></svg>`;
+      document.getElementsByTagName('head')[0].appendChild(link);
+    };
+    setFavicon();
+  }, []);
 
   // Load Album into Detail View
   const handleViewAlbum = (album) => {
