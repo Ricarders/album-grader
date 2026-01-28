@@ -890,8 +890,45 @@ const AlbumLibrary = ({ albums, onDelete, onViewAlbum, onArtistClick }) => {
 const AlbumApp = () => {
   const [view, setView] = useState('list'); // 'list' | 'detail' | 'editor' | 'artist'
   const [rankingMode, setRankingMode] = useState('albums'); // 'albums' | 'artists'
-  const [albums, setAlbums] = useState([]);
-  const [artistImages, setArtistImages] = useState({}); // { "Artist Name": "url" }
+  
+  // 1. Initialize State from LocalStorage
+  const [albums, setAlbums] = useState(() => {
+    try {
+      const saved = localStorage.getItem('album_grader_data');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        return Array.isArray(parsed.albums) ? parsed.albums : [];
+      }
+    } catch (e) {
+      console.error("Error loading albums from local storage", e);
+    }
+    return [];
+  });
+
+  const [artistImages, setArtistImages] = useState(() => {
+    try {
+      const saved = localStorage.getItem('album_grader_data');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        return parsed.artistImages || {};
+      }
+    } catch (e) {
+      return {};
+    }
+    return {};
+  });
+
+  // 2. Save to LocalStorage automatically whenever data changes
+  useEffect(() => {
+    const data = {
+      albums,
+      artistImages,
+      version: 2,
+      lastSaved: Date.now()
+    };
+    localStorage.setItem('album_grader_data', JSON.stringify(data));
+  }, [albums, artistImages]);
+
   const [currentAlbumId, setCurrentAlbumId] = useState(null);
   const [currentArtist, setCurrentArtist] = useState(null);
 
